@@ -21,14 +21,9 @@ void AVGP221GameModeBase::StartPlay()
     int TestNumber = 10;
 	bool BoolTest = false;
 	FString NameTest("Your string here");
-	int* NumPoint = &TestNumber;
-
     UE_LOG(LogTemp, Warning, TEXT("TestNumber: %i, BoolTest: %d, NameTest: %s"), TestNumber, BoolTest, *NameTest);
-    //
-	UE_LOG(LogTemp, Warning, TEXT("NumPoint: %i"), NumPoint);
-
-	UE_LOG(LogTemp, Warning, TEXT("NumPoint: %i"), *NumPoint);
-
+    
+    int* NumPoint = &TestNumber;
     // Will output a random number associated with memory address
     UE_LOG(LogTemp, Warning, TEXT("NumPoint: %i"), NumPoint);
     // Dereference to display the actual number
@@ -36,7 +31,4 @@ void AVGP221GameModeBase::StartPlay()
 
     // 4. Modern way of debugging values
     UE_LOGFMT(LogTemp, Warning, "TestNumber: {0}, BoolTest: {1}, NameTest {2}", TestNumber, BoolTest, "Name Test");
-
-	//int* CrashPointer = nullptr;
-	//UE_Log(LogTemp, Warning, TEXT("This will crash the game! %i"), *CrashPointer);
 }
