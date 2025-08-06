@@ -6,6 +6,7 @@
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/Character.h"
+
 #include "Projectile/FPSProjectile.h"
 #include "FPSCharacter.generated.h"
 

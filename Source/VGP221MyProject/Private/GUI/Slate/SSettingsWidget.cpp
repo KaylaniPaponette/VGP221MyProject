@@ -18,13 +18,13 @@ void SSettingsWidget::Construct(const FArguments& InArgs)
 	FSlateFontInfo TitleTextStyle = FCoreStyle::Get().GetFontStyle("EmbassedText");
 	TitleTextStyle.Size = 60.0f;
 
-	const FText TitleText = FText::FromString("PAUSE MENU");
+	const FText TitleText = FText::FromString("Shotun Ninja 2");
 
 	// Buttons
 	FSlateFontInfo ButtonTextStyle = TitleTextStyle;
 	ButtonTextStyle.Size = 40.0f;
 
-	const FText ResumeText = FText::FromString("RESUME");
+	const FText ResumeText = FText::FromString("START");
 	const FText SettingsText = FText::FromString("SETTINGS");
 	const FText QuitText = FText::FromString("QUIT");
 
