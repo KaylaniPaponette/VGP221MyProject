@@ -15,7 +15,7 @@ AMyAIController::AMyAIController()
 
     // Create and configure the sight sense
     SightConfig = CreateDefaultSubobject<UAISenseConfig_Sight>(TEXT("SightConfig"));
-    SightConfig->SightRadius = 1000.0f;
+    SightConfig->SightRadius = 2000.0f;
     SightConfig->LoseSightRadius = 1500.0f;
     SightConfig->PeripheralVisionAngleDegrees = 90.0f;
     SightConfig->DetectionByAffiliation.bDetectEnemies = true;
@@ -45,8 +45,8 @@ void AMyAIController::OnPossess(APawn* InPawn)
 //{
 //    for (AActor* Actor : UpdatedActors)
 //    {
-//        // Check if the perceived actor is the player
-//        if (Actor->IsA(ACharacter::StaticClass()) && Actor != GetPawn())
+//        // Check if the perceived actor has the "Player" tag
+//        if (Actor->ActorHasTag(TEXT("Player")))
 //        {
 //            // Get the blackboard component
 //            UBlackboardComponent* BlackboardComponent = GetBlackboardComponent();
@@ -54,12 +54,13 @@ void AMyAIController::OnPossess(APawn* InPawn)
 //            {
 //                // Set the "Player" key to the perceived player actor
 //                BlackboardComponent->SetValueAsObject(TEXT("Player"), Actor);
-//                return;
+//                return; // Exit the function since we found the player
 //            }
 //        }
 //    }
 //
-//    // If no player is found, clear the "Player" key
+//    // If the loop completes and no actor with the "Player" tag was found,
+//    // clear the "Player" key. This happens when the player goes out of sight.
 //    UBlackboardComponent* BlackboardComponent = GetBlackboardComponent();
 //    if (BlackboardComponent)
 //    {
@@ -71,8 +72,8 @@ void AMyAIController::OnPerceptionUpdated(const TArray<AActor*>& UpdatedActors)
 {
     for (AActor* Actor : UpdatedActors)
     {
-        // Check if the perceived actor has the "Player" tag
-        if (Actor->ActorHasTag(TEXT("Player")))
+        // Check if the perceived actor is the player
+        if (Actor->IsA(ACharacter::StaticClass()) && Actor != GetPawn())
         {
             // Get the blackboard component
             UBlackboardComponent* BlackboardComponent = GetBlackboardComponent();
@@ -80,16 +81,17 @@ void AMyAIController::OnPerceptionUpdated(const TArray<AActor*>& UpdatedActors)
             {
                 // Set the "Player" key to the perceived player actor
                 BlackboardComponent->SetValueAsObject(TEXT("Player"), Actor);
-                return; // Exit the function since we found the player
+                return;
             }
         }
     }
 
-    // If the loop completes and no actor with the "Player" tag was found,
-    // clear the "Player" key. This happens when the player goes out of sight.
+    // If no player is found, clear the "Player" key
     UBlackboardComponent* BlackboardComponent = GetBlackboardComponent();
     if (BlackboardComponent)
     {
         BlackboardComponent->ClearValue(TEXT("Player"));
     }
 }
+
+

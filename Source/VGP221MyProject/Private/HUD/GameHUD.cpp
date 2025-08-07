@@ -10,7 +10,7 @@ void AGameHUD::BeginPlay()
 	// Additional initialization code can go here
 
 	// 2. Slates method of Making UI
-	ShowSettingsMenu();
+	//ShowSettingsMenu();
 }
 
 void AGameHUD::DrawHUD()
