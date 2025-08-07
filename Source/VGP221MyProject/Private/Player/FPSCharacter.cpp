@@ -24,6 +24,7 @@ AFPSCharacter::AFPSCharacter()
 	}
 
 	GetMesh()->SetOwnerNoSee(true);
+	TeamId = FGenericTeamId(0);
 }
 
 // Called when the game starts or when spawned

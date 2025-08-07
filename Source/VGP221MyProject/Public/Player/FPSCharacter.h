@@ -6,12 +6,12 @@
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/Character.h"
-
+#include "GenericTeamAgentInterface.h" // Include the team interface
 #include "Projectile/FPSProjectile.h"
 #include "FPSCharacter.generated.h"
 
 UCLASS()
-class VGP221MYPROJECT_API AFPSCharacter : public ACharacter
+class VGP221MYPROJECT_API AFPSCharacter : public ACharacter, public IGenericTeamAgentInterface
 {
 	GENERATED_BODY()
 
@@ -56,4 +56,13 @@ public:
 
 	UFUNCTION()
 	void Fire();
+
+public:
+	virtual FGenericTeamId GetGenericTeamId() const override { return TeamId; }
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
+	FGenericTeamId TeamId;
+
+private:
+
 };
