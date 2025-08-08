@@ -1,87 +1,58 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
+// In FPSProjectile.cpp
 
 #include "Projectile/FPSProjectile.h"
+#include "Components/SphereComponent.h"
+#include "GameFramework/ProjectileMovementComponent.h"
+//  Include Niagara headers
+#include "NiagaraComponent.h"
+#include "NiagaraFunctionLibrary.h"
 
-// Sets default values
 AFPSProjectile::AFPSProjectile()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
-	if (!CollisionComponent) {
-		CollisionComponent = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComponent"));
-		CollisionComponent->InitSphereRadius(15.0f);
-		CollisionComponent->BodyInstance.SetCollisionProfileName(TEXT("Projectile"));
-		CollisionComponent->OnComponentHit.AddDynamic(this, &AFPSProjectile::OnWhateverWeWantToNameThis);
-		RootComponent = CollisionComponent;
-	}
+    PrimaryActorTick.bCanEverTick = false; // We don't need to tick
 
-	if (!ProjectileMovementComponent) {
-		ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovementComponent"));
-		ProjectileMovementComponent->SetUpdatedComponent(CollisionComponent);
-		ProjectileMovementComponent->InitialSpeed = BulletSpeed;
-		ProjectileMovementComponent->MaxSpeed = BulletSpeed;
-		ProjectileMovementComponent->bRotationFollowsVelocity = true;
-		ProjectileMovementComponent->bShouldBounce = true;
-		ProjectileMovementComponent->Bounciness = 0.3f;
-		ProjectileMovementComponent->ProjectileGravityScale = 0.0f;
-	}
+    // Setup the sphere collision
+    CollisionComponent = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComponent"));
+    CollisionComponent->InitSphereRadius(15.0f);
+    CollisionComponent->SetCollisionProfileName(TEXT("Projectile"));
+    CollisionComponent->OnComponentHit.AddDynamic(this, &AFPSProjectile::OnHit);
+    RootComponent = CollisionComponent;
 
-	if (!ProjectileMeshComponent) {
-		ProjectileMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ProjectileMeshComponent"));
+    // Setup the movement component
+    ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovementComponent"));
+    ProjectileMovementComponent->SetUpdatedComponent(CollisionComponent);
+    ProjectileMovementComponent->InitialSpeed = 1500.0f;
+    ProjectileMovementComponent->MaxSpeed = 1500.0f;
+    ProjectileMovementComponent->bRotationFollowsVelocity = true;
+    ProjectileMovementComponent->bShouldBounce = false;
 
-		// 1. Setup a imported mesh
-		static ConstructorHelpers::FObjectFinder<UStaticMesh>SphereMeshAsset(TEXT("/Game/Meshes/Projectile/Sphere.Sphere"));
+    // Hide the old sphere mesh
+    ProjectileMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ProjectileMeshComponent"));
+    ProjectileMeshComponent->SetupAttachment(RootComponent);
+    ProjectileMeshComponent->SetVisibility(false);
+    ProjectileMeshComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
-		// 2. Get assets from Unreal engine
-		// static ConstructorHelpers::FObjectFinder<UStaticMesh>SphereMeshAsset(TEXT("/Engine/BasicShapes/Sphere"));
-		if (SphereMeshAsset.Succeeded()) {
-			ProjectileMeshComponent->SetStaticMesh(SphereMeshAsset.Object);
-		}
+    //  SETUP THE NIAGARA TRACER COMPONENT
+    TracerComponent = CreateDefaultSubobject<UNiagaraComponent>(TEXT("TracerComponent"));
+    TracerComponent->SetupAttachment(RootComponent);
 
-		// Settings up material for sphere
-		static ConstructorHelpers::FObjectFinder<UMaterial>SphereMaterial(TEXT("/Game/Materials/M_Projectile.M_Projectile"));
-		if (SphereMaterial.Succeeded()) {
-			ProjectileMaterialInstance = UMaterialInstanceDynamic::Create(SphereMaterial.Object, ProjectileMaterialInstance);
-		}
-
-		ProjectileMeshComponent->SetMaterial(0, ProjectileMaterialInstance);
-		ProjectileMeshComponent->SetRelativeScale3D(FVector(0.09f, 0.09f, 0.09f));
-		ProjectileMeshComponent->SetupAttachment(RootComponent);
-	}
-	InitialLifeSpan = 3.0f; // Unity Destroy(3.0f)
-
+    InitialLifeSpan = 3.0f;
 }
 
-// Called when the game starts or when spawned
-void AFPSProjectile::BeginPlay()
+void AFPSProjectile::FireInDirection(const FVector& ShootDirection)
 {
-	Super::BeginPlay();
-	
+    ProjectileMovementComponent->Velocity = ShootDirection * ProjectileMovementComponent->InitialSpeed;
 }
 
-// Called every frame
-void AFPSProjectile::Tick(float DeltaTime)
+void AFPSProjectile::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit)
 {
-	Super::Tick(DeltaTime);
+    //  SPAWN THE NIAGARA IMPACT EFFECT
+    if (ImpactEffect)
+    {
+        // Use the Niagara function to spawn the system
+        UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), ImpactEffect, Hit.ImpactPoint, Hit.ImpactNormal.Rotation());
+    }
 
+    // Destroy the projectile actor after it hits something
+    Destroy();
 }
-
-void AFPSProjectile::FireInDirection(const FVector& ShoortDirection)
-{
-	// 1. FVector ShoortDirection: Pass by value, least efficient. Basically just duplicating the data
-	// 2. FVector* ShoortDirection: Pass pointer memory, efficient cus memory address.
-	// 3. FVector& ShoortDirection: Pass reference memory, efficient cus memory address. Similar Unity Out
-	// 4. const FVector& ShoortDirection: Pass ref memory. We can't directly change the original value like 3.
-
-	ProjectileMovementComponent->Velocity = ProjectileMovementComponent->InitialSpeed * ShoortDirection;
-}
-
-void AFPSProjectile::OnWhateverWeWantToNameThis(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit)
-{
-	if (OtherActor != this && OtherComponent->IsSimulatingPhysics()) {
-		OtherComponent->AddImpulseAtLocation(ProjectileMovementComponent->Velocity * 100.0f, Hit.ImpactPoint);
-		Destroy();
-	}
-}
-

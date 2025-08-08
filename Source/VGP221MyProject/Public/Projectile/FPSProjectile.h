@@ -8,6 +8,9 @@
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "FPSProjectile.generated.h"
 
+// Forward declare the Niagara component
+class UNiagaraComponent;
+
 UCLASS()
 class VGP221MYPROJECT_API AFPSProjectile : public AActor
 {
@@ -17,32 +20,27 @@ public:
 	// Sets default values for this actor's properties
 	AFPSProjectile();
 
-protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
+public:
+    UPROPERTY(VisibleDefaultsOnly, Category = "Projectile")
+    USphereComponent* CollisionComponent;
 
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+    UPROPERTY(VisibleDefaultsOnly, Category = "Movement")
+    class UProjectileMovementComponent* ProjectileMovementComponent;
 
-	UPROPERTY(EditAnywhere, Category = "Movement")
-	float BulletSpeed = 1000;
+    UPROPERTY(VisibleDefaultsOnly, Category = "Projectile")
+    UStaticMeshComponent* ProjectileMeshComponent;
 
-	UPROPERTY(VisibleDefaultsOnly, Category = "Projectile")
-	USphereComponent* CollisionComponent;
+    // CHANGED to a Niagara Component for your shuriken
+    UPROPERTY(VisibleAnywhere, Category = "Effects")
+    UNiagaraComponent* TracerComponent;
 
-	UPROPERTY(VisibleDefaultsOnly, Category = "Movement")
-	UProjectileMovementComponent* ProjectileMovementComponent;
+    // CHANGED to a Niagara System for the hit effect
+    UPROPERTY(EditAnywhere, Category = "Effects")
+    class UNiagaraSystem* ImpactEffect;
 
-	UPROPERTY(VisibleDefaultsOnly, Category = "Projectile")
-	UStaticMeshComponent* ProjectileMeshComponent;
+    UFUNCTION()
+    void FireInDirection(const FVector& ShoortDirection);
 
-	UPROPERTY(VisibleDefaultsOnly, Category = "Projectile")
-	UMaterialInstanceDynamic* ProjectileMaterialInstance;
-
-	UFUNCTION()
-	void FireInDirection(const FVector& ShoortDirection);
-
-	UFUNCTION()
-	void OnWhateverWeWantToNameThis(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit);
+    UFUNCTION()
+    void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit);
 };
