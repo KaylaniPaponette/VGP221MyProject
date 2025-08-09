@@ -13,7 +13,6 @@ float UPlayerHUDWidget::GetPlayerHealthPercent() const
 	if (PlayerCharacter)
 	{
 		// Calculate and return the health percentage
-		// We add a check to prevent division by zero
 		return (PlayerCharacter->Health > 0.0f) ? (PlayerCharacter->Health / 100.0f) : 0.0f;
 	}
 

@@ -6,9 +6,9 @@
 // Sets default values
 ABaseAICharacter::ABaseAICharacter()
 {
-	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	// Set this character to call Tick() every frame.
 	PrimaryActorTick.bCanEverTick = true;
-	TeamId = FGenericTeamId(1); // Set a different team ID for AI
+	TeamId = FGenericTeamId(1); // Set team ID for AI
 }
 
 // Called when the game starts or when spawned
@@ -59,15 +59,13 @@ float ABaseAICharacter::TakeDamage(float DamageAmount, FDamageEvent const& Damag
 
 void ABaseAICharacter::OnStateEnter(EAIState State)
 {
-	// This will be overridden by child classes
+	// Overridden by child classes
 }
 
 void ABaseAICharacter::OnStateUpdate(EAIState State, float DeltaTime)
 {
-	// This will be overridden by child classes
 }
 
 void ABaseAICharacter::OnStateExit(EAIState State)
 {
-	// This will be overridden by child classes
 }

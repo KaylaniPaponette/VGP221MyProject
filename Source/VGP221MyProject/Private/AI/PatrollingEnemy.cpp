@@ -6,7 +6,7 @@
 #include "Navigation/PathFollowingComponent.h"
 #include "Player/FPSCharacter.h"
 #include "Perception/AISenseConfig_Sight.h"
-#include "Kismet/GameplayStatics.h" // Required for ApplyDamage
+#include "Kismet/GameplayStatics.h" 
 
 
 APatrollingEnemy::APatrollingEnemy()
@@ -49,7 +49,7 @@ void APatrollingEnemy::OnPawnDetected(const TArray<AActor*>& DetectedPawns)
 			return;
 		}
 	}
-	// If player is no longer detected, go back to patrolling
+	// Return to patrol if no player is detected
 	if (CurrentState != EAIState::Patrol)
 	{
 		SetState(EAIState::Patrol);
@@ -76,10 +76,10 @@ void APatrollingEnemy::OnStateEnter(EAIState State)
 		}
 		break;
 	case EAIState::Chase:
-		// Chase logic is handled in the update, nothing to set up here
+		// Chase logic handled in OnStateUpdate
 		break;
 	case EAIState::Attack:
-		// Stop moving when we start attacking
+		// Stop moving when attacking
 		AIController->StopMovement();
 		break;
 	default:
@@ -111,7 +111,7 @@ void APatrollingEnemy::OnStateUpdate(EAIState State, float DeltaTime)
 		if (Player)
 		{
 			AIController->MoveToActor(Player);
-			// If we get close enough, switch to attack state
+			// Attack if close enough
 			if (FVector::Dist(GetActorLocation(), Player->GetActorLocation()) < 200.0f)
 			{
 				SetState(EAIState::Attack);
@@ -124,12 +124,12 @@ void APatrollingEnemy::OnStateUpdate(EAIState State, float DeltaTime)
 		AFPSCharacter* Player = Cast<AFPSCharacter>(GetWorld()->GetFirstPlayerController()->GetPawn());
 		if (Player)
 		{
-			// If player runs away, go back to chasing
+			// Return to chase if player moves away
 			if (FVector::Dist(GetActorLocation(), Player->GetActorLocation()) > 250.0f)
 			{
 				SetState(EAIState::Chase);
 			}
-			else if (bCanAttack) // Only attack if the cooldown is over
+			else if (bCanAttack) // Attack when cooldown is over
 			{
 				UE_LOG(LogTemp, Warning, TEXT("Enemy attacking player!"));
 				UGameplayStatics::ApplyDamage(Player, MeleeDamage, GetController(), this, UDamageType::StaticClass());

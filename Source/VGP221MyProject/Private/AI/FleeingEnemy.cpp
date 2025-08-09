@@ -104,7 +104,7 @@ void AFleeingEnemy::OnStateUpdate(EAIState State, float DeltaTime)
 	switch (State)
 	{
 	case EAIState::Flee:
-		// If we've reached our destination but are still in the Flee state, find a new place to run!
+		// Find new flee location if the AI is still fleeing and has reached the current target
 		if (AIController->GetMoveStatus() == EPathFollowingStatus::Idle)
 		{
 			FindNewFleeLocation();

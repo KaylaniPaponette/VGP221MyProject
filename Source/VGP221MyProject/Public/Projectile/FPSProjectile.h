@@ -30,11 +30,11 @@ public:
     UPROPERTY(VisibleDefaultsOnly, Category = "Projectile")
     UStaticMeshComponent* ProjectileMeshComponent;
 
-    // CHANGED to a Niagara Component for your shuriken
+	// Niagara Component for projectile tracing
     UPROPERTY(VisibleAnywhere, Category = "Effects")
     UNiagaraComponent* TracerComponent;
 
-    // CHANGED to a Niagara System for the hit effect
+    // Niagara System for the hit effect
     UPROPERTY(EditAnywhere, Category = "Effects")
     class UNiagaraSystem* ImpactEffect;
 

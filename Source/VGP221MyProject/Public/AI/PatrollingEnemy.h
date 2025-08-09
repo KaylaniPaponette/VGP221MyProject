@@ -37,7 +37,7 @@ private:
 	virtual void OnStateUpdate(EAIState State, float DeltaTime) override;
 	virtual void OnStateExit(EAIState State) override;
 
-	// Resets the attack so the AI can attack again
+	// Resets the attack so AI can attack again
 	void ResetAttack();
 
 	int32 CurrentPatrolPointIndex = 0;
