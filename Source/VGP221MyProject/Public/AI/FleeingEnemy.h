@@ -34,4 +34,7 @@ private:
 	virtual void OnStateUpdate(EAIState State, float DeltaTime) override;
 	virtual void OnStateExit(EAIState State) override;
 
+	// Helper function to find a new flee location
+	void FindNewFleeLocation();
+
 };
