@@ -81,4 +81,22 @@ private:
 	UPROPERTY()
 	UUserWidget* PlayerHUD;
 
+	// --- Dash Mechanic Variables ---
+
+	UPROPERTY(EditAnywhere, Category = "Movement|Dash")
+	float DashDistance = 5000.f;
+
+	UPROPERTY(EditAnywhere, Category = "Movement|Dash")
+	float DashCooldown = 1.f;
+
+	bool bCanDash = true;
+
+	// Timer handle for the dash cooldown
+	FTimerHandle DashCooldownTimerHandle;
+
+	// --- Dash Functions ---
+
+	void OnDash();
+	void ResetDash();
+
 };

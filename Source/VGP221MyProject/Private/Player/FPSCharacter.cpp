@@ -3,6 +3,7 @@
 
 #include "Player/FPSCharacter.h"
 #include "Kismet/GameplayStatics.h" // Required for restarting the level
+#include "GameFramework/CharacterMovementComponent.h" // Required for LaunchCharacter
 
 // Sets default values
 AFPSCharacter::AFPSCharacter()
@@ -70,6 +71,9 @@ void AFPSCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 
 	// Fire
 	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &AFPSCharacter::Fire);
+
+	// Dash Input - Bind the new "Dash" Action Mapping
+	PlayerInputComponent->BindAction("Dash", IE_Pressed, this, &AFPSCharacter::OnDash);
 }
 
 float AFPSCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
@@ -90,17 +94,20 @@ float AFPSCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEv
 
 void AFPSCharacter::MoveFoward(float value)
 {
-	// 1. Unreal tutorial way
-	// FVector Direction = FRotationMatrix(Controller->GetControlRotation()).GetScaledAxis(EAxis::X);
-
-	FVector Direction = GetActorForwardVector();
-	AddMovementInput(Direction, value);
+	if (value != 0.0f)
+	{
+		FVector Direction = GetActorForwardVector();
+		AddMovementInput(Direction, value);
+	}
 }
 
 void AFPSCharacter::MoveRight(float value)
 {
-	FVector Direction = GetActorRightVector();
-	AddMovementInput(Direction, value);
+	if (value != 0.0f)
+	{
+		FVector Direction = GetActorRightVector();
+		AddMovementInput(Direction, value);
+	}
 }
 
 void AFPSCharacter::StartJump()
@@ -173,4 +180,33 @@ void AFPSCharacter::Fire()
 		// 8. Fire the projectile
 		Projectile->FireInDirection(LaunchDirection);
 	}
+}
+
+void AFPSCharacter::OnDash()
+{
+	if (bCanDash)
+	{
+		// Get the last movement input vector to determine dash direction
+		// This makes the dash feel intuitive, going in the direction you are moving
+		FVector LastInputVector = GetLastMovementInputVector();
+
+		// If player is not moving, dash forward by default
+		if (LastInputVector.IsNearlyZero())
+		{
+			LastInputVector = GetActorForwardVector();
+		}
+
+		LastInputVector.Normalize();
+
+		// Use LaunchCharacter for a burst of movement
+		LaunchCharacter(LastInputVector * DashDistance, false, false);
+
+		bCanDash = false;
+		GetWorldTimerManager().SetTimer(DashCooldownTimerHandle, this, &AFPSCharacter::ResetDash, DashCooldown, false);
+	}
+}
+
+void AFPSCharacter::ResetDash()
+{
+	bCanDash = true;
 }
