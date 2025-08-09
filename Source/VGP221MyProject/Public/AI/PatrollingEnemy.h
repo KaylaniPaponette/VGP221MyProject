@@ -37,6 +37,15 @@ private:
 	virtual void OnStateUpdate(EAIState State, float DeltaTime) override;
 	virtual void OnStateExit(EAIState State) override;
 
+	// Resets the attack so the AI can attack again
+	void ResetAttack();
+
 	int32 CurrentPatrolPointIndex = 0;
+
+	// Timer for handling attack rate
+	FTimerHandle MeleeAttackTimerHandle;
+	float MeleeAttackRate = 1.5f;
+	float MeleeDamage = 15.0f;
+	bool bCanAttack = true;
 
 };

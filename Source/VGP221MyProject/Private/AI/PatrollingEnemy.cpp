@@ -6,6 +6,7 @@
 #include "Navigation/PathFollowingComponent.h"
 #include "Player/FPSCharacter.h"
 #include "Perception/AISenseConfig_Sight.h"
+#include "Kismet/GameplayStatics.h" // Required for ApplyDamage
 
 
 APatrollingEnemy::APatrollingEnemy()
@@ -14,9 +15,9 @@ APatrollingEnemy::APatrollingEnemy()
 
 	AIPerceptionComponent = CreateDefaultSubobject<UAIPerceptionComponent>(TEXT("AIPerceptionComponent"));
 	UAISenseConfig_Sight* SightConfig = CreateDefaultSubobject<UAISenseConfig_Sight>(TEXT("SightConfig"));
-	SightConfig->SightRadius = 3000.0f;
+	SightConfig->SightRadius = 2000.0f;
 	SightConfig->LoseSightRadius = 1500.0f;
-	SightConfig->PeripheralVisionAngleDegrees = 180.0f;
+	SightConfig->PeripheralVisionAngleDegrees = 120.0f;
 	SightConfig->SetMaxAge(5.0f);
 	SightConfig->DetectionByAffiliation.bDetectEnemies = true;
 	SightConfig->DetectionByAffiliation.bDetectNeutrals = false;
@@ -48,7 +49,16 @@ void APatrollingEnemy::OnPawnDetected(const TArray<AActor*>& DetectedPawns)
 			return;
 		}
 	}
-	SetState(EAIState::Patrol);
+	// If player is no longer detected, go back to patrolling
+	if (CurrentState != EAIState::Patrol)
+	{
+		SetState(EAIState::Patrol);
+	}
+}
+
+void APatrollingEnemy::ResetAttack()
+{
+	bCanAttack = true;
 }
 
 void APatrollingEnemy::OnStateEnter(EAIState State)
@@ -66,10 +76,11 @@ void APatrollingEnemy::OnStateEnter(EAIState State)
 		}
 		break;
 	case EAIState::Chase:
-		// Chase logic is handled in the update
+		// Chase logic is handled in the update, nothing to set up here
 		break;
 	case EAIState::Attack:
-		// Attack logic is handled in the update
+		// Stop moving when we start attacking
+		AIController->StopMovement();
 		break;
 	default:
 		break;
@@ -100,6 +111,7 @@ void APatrollingEnemy::OnStateUpdate(EAIState State, float DeltaTime)
 		if (Player)
 		{
 			AIController->MoveToActor(Player);
+			// If we get close enough, switch to attack state
 			if (FVector::Dist(GetActorLocation(), Player->GetActorLocation()) < 200.0f)
 			{
 				SetState(EAIState::Attack);
@@ -112,11 +124,18 @@ void APatrollingEnemy::OnStateUpdate(EAIState State, float DeltaTime)
 		AFPSCharacter* Player = Cast<AFPSCharacter>(GetWorld()->GetFirstPlayerController()->GetPawn());
 		if (Player)
 		{
+			// If player runs away, go back to chasing
 			if (FVector::Dist(GetActorLocation(), Player->GetActorLocation()) > 250.0f)
 			{
 				SetState(EAIState::Chase);
 			}
-			// Add attack logic here (e.g., melee attack)
+			else if (bCanAttack) // Only attack if the cooldown is over
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Enemy attacking player!"));
+				UGameplayStatics::ApplyDamage(Player, MeleeDamage, GetController(), this, UDamageType::StaticClass());
+				bCanAttack = false;
+				GetWorldTimerManager().SetTimer(MeleeAttackTimerHandle, this, &APatrollingEnemy::ResetAttack, MeleeAttackRate, false);
+			}
 		}
 	}
 	break;
@@ -140,6 +159,9 @@ void APatrollingEnemy::OnStateExit(EAIState State)
 		AIController->StopMovement();
 		break;
 	case EAIState::Attack:
+		// Clear the timer if we exit the attack state to prevent issues
+		GetWorldTimerManager().ClearTimer(MeleeAttackTimerHandle);
+		bCanAttack = true; // Ensure we can attack again next time
 		break;
 	default:
 		break;

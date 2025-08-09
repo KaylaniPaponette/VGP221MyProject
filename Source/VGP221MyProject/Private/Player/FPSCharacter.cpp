@@ -2,6 +2,7 @@
 
 
 #include "Player/FPSCharacter.h"
+#include "Kismet/GameplayStatics.h" // Required for restarting the level
 
 // Sets default values
 AFPSCharacter::AFPSCharacter()
@@ -31,7 +32,7 @@ AFPSCharacter::AFPSCharacter()
 void AFPSCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 }
 
 // Called every frame
@@ -62,6 +63,22 @@ void AFPSCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &AFPSCharacter::Fire);
 }
 
+float AFPSCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	float ActualDamage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+
+	Health -= ActualDamage;
+	UE_LOG(LogTemp, Warning, TEXT("Player took %f damage, remaining health: %f"), ActualDamage, Health);
+
+	if (Health <= 0)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Player has died. Restarting level."));
+		UGameplayStatics::OpenLevel(this, FName(*GetWorld()->GetName()), false);
+	}
+
+	return ActualDamage;
+}
+
 void AFPSCharacter::MoveFoward(float value)
 {
 	// 1. Unreal tutorial way
@@ -87,38 +104,6 @@ void AFPSCharacter::EndJump()
 	bPressedJump = false;
 }
 
-//void AFPSCharacter::Fire()
-//{// Implement firing logic here
-//	if (!ProjectileClass) return;
-//
-//	// Init relevant infomration for where the projectile will be
-//	FVector CameraLocation;
-//	FRotator CameraRotation;
-//	GetActorEyesViewPoint(CameraLocation, CameraRotation);
-//
-//	MuzzleOffset.Set(100.0f, 0.0f, 0.0f);
-//
-//	FVector MuzzleLocation = CameraLocation + FTransform(CameraRotation).TransformVector(MuzzleOffset);
-//
-//	FRotator MuzzleRotation = CameraRotation;
-//	MuzzleRotation.Pitch += 10.0f;
-//
-//	// Start of spawning the projectile
-//	UWorld* World = GetWorld();
-//	if (!World)  return;
-//
-//	FActorSpawnParameters SpawnParams;
-//	SpawnParams.Owner = this;
-//	SpawnParams.Instigator = GetInstigator();
-//
-//	// Unity Instantiate
-//	AFPSProjectile* Projectile = World->SpawnActor<AFPSProjectile>(ProjectileClass, MuzzleLocation, MuzzleRotation, SpawnParams);
-//	if (!Projectile) return;
-//
-//	// Launch spawned projectile in the camera rotation
-//	FVector LaunchDirection = MuzzleRotation.Vector();
-//	Projectile->FireInDirection(LaunchDirection);
-//}
 void AFPSCharacter::Fire()
 {
 	if (!ProjectileClass) return;
