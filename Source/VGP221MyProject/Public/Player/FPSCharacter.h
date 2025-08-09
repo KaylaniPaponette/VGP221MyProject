@@ -6,7 +6,8 @@
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/Character.h"
-#include "GenericTeamAgentInterface.h" // Include the team interface
+#include "GenericTeamAgentInterface.h"
+#include "Blueprint/UserWidget.h" // Required for UUserWidget
 #include "Projectile/FPSProjectile.h"
 #include "FPSCharacter.generated.h"
 
@@ -70,6 +71,14 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
 	FGenericTeamId TeamId;
 
+protected:
+	// The C++ class of our HUD, assignable in the Blueprint editor
+	UPROPERTY(EditDefaultsOnly, Category = "UI")
+	TSubclassOf<UUserWidget> PlayerHUDClass;
+
 private:
+	// The instance of our HUD
+	UPROPERTY()
+	UUserWidget* PlayerHUD;
 
 };

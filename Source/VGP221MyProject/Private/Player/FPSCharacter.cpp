@@ -33,6 +33,15 @@ void AFPSCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
+	// Create and add the HUD to the viewport
+	if (PlayerHUDClass)
+	{
+		PlayerHUD = CreateWidget<UUserWidget>(GetWorld(), PlayerHUDClass);
+		if (PlayerHUD)
+		{
+			PlayerHUD->AddToViewport();
+		}
+	}
 }
 
 // Called every frame
