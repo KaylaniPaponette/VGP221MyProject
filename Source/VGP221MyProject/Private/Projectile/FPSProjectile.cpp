@@ -6,6 +6,7 @@
 //  Include Niagara headers
 #include "NiagaraComponent.h"
 #include "NiagaraFunctionLibrary.h"
+#include "Kismet/GameplayStatics.h" // Needed for ApplyDamage
 
 AFPSProjectile::AFPSProjectile()
 {
@@ -52,6 +53,12 @@ void AFPSProjectile::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor
         // Use the Niagara function to spawn the system
         UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), ImpactEffect, Hit.ImpactPoint, Hit.ImpactNormal.Rotation());
     }
+
+    if (OtherActor && OtherActor != this)
+    {
+        UGameplayStatics::ApplyDamage(OtherActor, Damage, GetInstigatorController(), this, UDamageType::StaticClass());
+    }
+
 
     // Destroy the projectile actor after it hits something
     Destroy();

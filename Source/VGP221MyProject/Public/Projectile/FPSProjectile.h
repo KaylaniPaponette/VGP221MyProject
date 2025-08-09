@@ -38,6 +38,9 @@ public:
     UPROPERTY(EditAnywhere, Category = "Effects")
     class UNiagaraSystem* ImpactEffect;
 
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Projectile")
+    float Damage = 25.0f;
+
     UFUNCTION()
     void FireInDirection(const FVector& ShoortDirection);
 
