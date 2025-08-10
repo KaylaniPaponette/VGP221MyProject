@@ -2,7 +2,8 @@
 
 
 #include "Player/FPSCharacter.h"
-#include "Kismet/GameplayStatics.h" // Required for restarting the level
+#include "Kismet/GameplayStatics.h" // Required for UGameplayStatics
+#include "VGP221GameModeBase.h" // Include your Game Mode header
 #include "GameFramework/CharacterMovementComponent.h" // Required for LaunchCharacter
 
 // Sets default values
@@ -72,7 +73,7 @@ void AFPSCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	// Fire
 	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &AFPSCharacter::Fire);
 
-	// Dash Input - Bind the new "Dash" Action Mapping
+	// Dash Input
 	PlayerInputComponent->BindAction("Dash", IE_Pressed, this, &AFPSCharacter::OnDash);
 }
 
@@ -85,8 +86,13 @@ float AFPSCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEv
 
 	if (Health <= 0)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Player has died. Restarting level."));
-		UGameplayStatics::OpenLevel(this, FName(*GetWorld()->GetName()), false);
+		// Get the current game mode
+		AVGP221GameModeBase* GameMode = GetWorld()->GetAuthGameMode<AVGP221GameModeBase>();
+		if (GameMode)
+		{
+			// Call the player died function on the game mode
+			GameMode->PlayerDied(GetController());
+		}
 	}
 
 	return ActualDamage;
@@ -186,21 +192,13 @@ void AFPSCharacter::OnDash()
 {
 	if (bCanDash)
 	{
-		// Get the last movement input vector to determine dash direction
-		// This makes the dash feel intuitive, going in the direction you are moving
 		FVector LastInputVector = GetLastMovementInputVector();
-
-		// If player is not moving, dash forward by default
 		if (LastInputVector.IsNearlyZero())
 		{
 			LastInputVector = GetActorForwardVector();
 		}
-
 		LastInputVector.Normalize();
-
-		// Use LaunchCharacter for a burst of movement
 		LaunchCharacter(LastInputVector * DashDistance, false, false);
-
 		bCanDash = false;
 		GetWorldTimerManager().SetTimer(DashCooldownTimerHandle, this, &AFPSCharacter::ResetDash, DashCooldown, false);
 	}
