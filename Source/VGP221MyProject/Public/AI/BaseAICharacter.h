@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "GenericTeamAgentInterface.h"
+#include "Components/WidgetComponent.h" // Required for the health bar
 #include "BaseAICharacter.generated.h"
 
 UENUM(BlueprintType)
@@ -42,6 +43,10 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI")
 	EAIState CurrentState = EAIState::Idle;
+
+	// Enemy health bar widget
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "UI")
+	UWidgetComponent* HealthBarWidgetComponent;
 
 	UFUNCTION(BlueprintCallable, Category = "AI")
 	virtual void SetState(EAIState NewState);

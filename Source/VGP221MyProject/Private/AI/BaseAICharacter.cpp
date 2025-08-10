@@ -2,13 +2,21 @@
 
 
 #include "AI/BaseAICharacter.h"
+#include "UI/EnemyHealthBarWidget.h" 
 
 // Sets default values
 ABaseAICharacter::ABaseAICharacter()
 {
-	// Set this character to call Tick() every frame.
+ 	// Set this character to call Tick() every frame.
 	PrimaryActorTick.bCanEverTick = true;
 	TeamId = FGenericTeamId(1); // Set team ID for AI
+
+	// Create the widget component
+	HealthBarWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("HealthBarWidget"));
+	HealthBarWidgetComponent->SetupAttachment(RootComponent);
+	HealthBarWidgetComponent->SetWidgetSpace(EWidgetSpace::Screen); // Set to face the camera
+	HealthBarWidgetComponent->SetDrawSize(FVector2D(150, 20)); // Size of the health bar
+	HealthBarWidgetComponent->SetVisibility(false); // Hide the health bar by default
 }
 
 // Called when the game starts or when spawned
@@ -17,6 +25,12 @@ void ABaseAICharacter::BeginPlay()
 	Super::BeginPlay();
 	SetState(EAIState::Idle);
 
+	// Set the owner of the widget so it can get health
+	if (UEnemyHealthBarWidget* HealthBarWidget = Cast<UEnemyHealthBarWidget>(HealthBarWidgetComponent->GetUserWidgetObject()))
+	{
+		HealthBarWidget->SetOwnerActor(this);
+	}
+	
 }
 
 // Called every frame
@@ -49,8 +63,15 @@ float ABaseAICharacter::TakeDamage(float DamageAmount, FDamageEvent const& Damag
 	float ActualDamage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 
 	Health -= ActualDamage;
-	if (Health <= 0)
+
+	// Make the health bar visible when the enemy takes damage
+	if (Health > 0.0f)
 	{
+		HealthBarWidgetComponent->SetVisibility(true);
+	}
+	else
+	{
+		HealthBarWidgetComponent->SetVisibility(false); // Hide on death
 		Destroy();
 	}
 
@@ -64,8 +85,10 @@ void ABaseAICharacter::OnStateEnter(EAIState State)
 
 void ABaseAICharacter::OnStateUpdate(EAIState State, float DeltaTime)
 {
+
 }
 
 void ABaseAICharacter::OnStateExit(EAIState State)
 {
+
 }
