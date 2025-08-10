@@ -25,7 +25,7 @@ void UMainMenuWidget::OnPlayClicked()
         PC->bShowMouseCursor = false;
     }
 
-    UGameplayStatics::OpenLevel(this, TEXT("LevelMap"));
+    UGameplayStatics::OpenLevel(this, TEXT("GameMap2"));
 }
 
 void UMainMenuWidget::OnQuitClicked()
