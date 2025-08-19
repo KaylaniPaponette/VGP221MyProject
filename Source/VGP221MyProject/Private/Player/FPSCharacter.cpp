@@ -75,6 +75,10 @@ void AFPSCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 
 	// Dash Input
 	PlayerInputComponent->BindAction("Dash", IE_Pressed, this, &AFPSCharacter::OnDash);
+
+	// Pause Menu Input
+	PlayerInputComponent->BindAction("Pause", IE_Pressed, this, &AFPSCharacter::TogglePauseMenu).bExecuteWhenPaused = true;
+
 }
 
 float AFPSCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
@@ -139,7 +143,7 @@ void AFPSCharacter::Fire()
 	GetActorEyesViewPoint(CameraLocation, CameraRotation);
 
 	// 2. Calculate the projectile's spawn location first
-	MuzzleOffset.Set(100.0f, 0.0f, 0.0f);
+	MuzzleOffset.Set(100.0f, 50.0f, 0.0f);
 	FVector MuzzleLocation = CameraLocation + FTransform(CameraRotation).TransformVector(MuzzleOffset);
 
 	// 3. Start and end points for our line trace (raycast)
@@ -207,4 +211,37 @@ void AFPSCharacter::OnDash()
 void AFPSCharacter::ResetDash()
 {
 	bCanDash = true;
+}
+
+void AFPSCharacter::TogglePauseMenu()
+{
+	APlayerController* PlayerController = UGameplayStatics::GetPlayerController(this, 0);
+	if (!PlayerController) return;
+
+	if (PauseMenu && PauseMenu->IsInViewport())
+	{
+		// Menu is open, so close it
+		PauseMenu->RemoveFromParent();
+		UGameplayStatics::SetGamePaused(GetWorld(), false);
+		FInputModeGameOnly InputMode;
+		PlayerController->SetInputMode(InputMode);
+		PlayerController->bShowMouseCursor = false;
+	}
+	else
+	{
+		// Menu is closed, so open it
+		if (PauseMenuClass)
+		{
+			PauseMenu = CreateWidget<UUserWidget>(GetWorld(), PauseMenuClass);
+			if (PauseMenu)
+			{
+				PauseMenu->AddToViewport();
+				UGameplayStatics::SetGamePaused(GetWorld(), true);
+				FInputModeUIOnly InputMode;
+				InputMode.SetWidgetToFocus(PauseMenu->TakeWidget());
+				PlayerController->SetInputMode(InputMode);
+				PlayerController->bShowMouseCursor = true;
+			}
+		}
+	}
 }

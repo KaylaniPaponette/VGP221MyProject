@@ -65,6 +65,10 @@ public:
 	UFUNCTION()
 	void Fire();
 
+	// Pause Menu Function
+	UFUNCTION()
+	void TogglePauseMenu();
+
 public:
 	virtual FGenericTeamId GetGenericTeamId() const override { return TeamId; }
 
@@ -76,10 +80,18 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "UI")
 	TSubclassOf<UUserWidget> PlayerHUDClass;
 
+	// The C++ class of our Pause Menu, assignable in the Blueprint editor
+	UPROPERTY(EditDefaultsOnly, Category = "UI")
+	TSubclassOf<UUserWidget> PauseMenuClass;
+
 private:
 	// The instance of our HUD
 	UPROPERTY()
 	UUserWidget* PlayerHUD;
+
+	// The instance of our Pause Menu
+	UPROPERTY()
+	UUserWidget* PauseMenu;
 
 	// --- Dash Mechanic Variables ---
 
