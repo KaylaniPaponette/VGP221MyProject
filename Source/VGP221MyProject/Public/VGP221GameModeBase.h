@@ -29,6 +29,7 @@
 #include "Logging/StructuredLog.h"
 #include "VGP221GameModeBase.generated.h"
 
+class AKeyCollectible;
 
 /**
  * */
@@ -38,13 +39,31 @@ class VGP221MYPROJECT_API AVGP221GameModeBase : public AGameModeBase
 	GENERATED_BODY()
 
 public:
-	// This function will be called from the player character when it dies
+	void FleeingEnemyKilled();
 	void PlayerDied(AController* PlayerController);
 
+	UFUNCTION(BlueprintPure, Category = "Game Rules")
+	int32 GetCurrentKills() const { return FleeingEnemiesKilledCount; }
+
+	UFUNCTION(BlueprintPure, Category = "Game Rules")
+	int32 GetRequiredKills() const { return RequiredKills; }
+
 protected:
-	// This property will let you choose the game over map in the Blueprint editor
+	virtual void StartPlay() override;
+
 	UPROPERTY(EditDefaultsOnly, Category = "Game Rules")
 	FName GameOverMapName;
 
-	virtual void StartPlay() override;
+private:
+	// This is no longer editable, but we can see it in the World Settings for debugging.
+	UPROPERTY(VisibleInstanceOnly, Category = "Game Rules")
+	AKeyCollectible* KeyToSpawn;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Game Rules")
+	int32 RequiredKills = 3;
+
+	int32 FleeingEnemiesKilledCount = 0;
+
+	bool bKeyHasSpawned = false;
+
 };

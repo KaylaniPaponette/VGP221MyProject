@@ -18,4 +18,6 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Health")
 	float GetPlayerHealthPercent() const;
 
+	UFUNCTION(BlueprintPure, Category = "Enemies")
+	int32 GetEnemiesRemaining() const;
 };
