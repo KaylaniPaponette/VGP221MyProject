@@ -53,6 +53,9 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI")
 	EAIState CurrentState = EAIState::Idle;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
+	float CurrentSpeed;
+
 	// Enemy health bar widget
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "UI")
 	UWidgetComponent* HealthBarWidgetComponent;

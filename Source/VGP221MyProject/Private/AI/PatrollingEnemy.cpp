@@ -7,6 +7,8 @@
 #include "Player/FPSCharacter.h"
 #include "Perception/AISenseConfig_Sight.h"
 #include "Kismet/GameplayStatics.h" 
+#include "Animation/AnimInstance.h" // NEW: Needed for playing montages
+#include "TimerManager.h"
 
 
 APatrollingEnemy::APatrollingEnemy()
@@ -138,6 +140,38 @@ void APatrollingEnemy::OnStateUpdate(EAIState State, float DeltaTime)
 			}
 		}
 	}
+	//case EAIState::Attack:
+	//{
+	//	AFPSCharacter* Player = Cast<AFPSCharacter>(GetWorld()->GetFirstPlayerController()->GetPawn());
+	//	if (Player)
+	//	{
+	//		// Return to chase if player moves away
+	//		if (FVector::Dist(GetActorLocation(), Player->GetActorLocation()) > 250.0f)
+	//		{
+	//			SetState(EAIState::Chase);
+	//		}
+	//		else if (bCanAttack) // Attack when cooldown is over
+	//		{
+	//			// --- MODIFIED ATTACK LOGIC ---
+	//			bCanAttack = false; // Prevent attacking again immediately
+
+	//			//if (MeleeAttackMontage)
+	//			//{
+	//			//	// Play the animation montage
+	//			//	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	//			//	if (AnimInstance)
+	//			//	{
+	//			//		AnimInstance->Montage_Play(MeleeAttackMontage);
+	//			//	}
+	//			//}
+
+	//			// We still apply damage and set the timer like before
+	//			UGameplayStatics::ApplyDamage(Player, MeleeDamage, GetController(), this, UDamageType::StaticClass());
+	//			GetWorldTimerManager().SetTimer(MeleeAttackTimerHandle, this, &APatrollingEnemy::ResetAttack, MeleeAttackRate, false);
+	//			// --- END MODIFIED LOGIC ---
+	//		}
+	//	}
+	//}
 	break;
 	default:
 		break;

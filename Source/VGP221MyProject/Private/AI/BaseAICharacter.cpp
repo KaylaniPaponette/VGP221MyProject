@@ -42,6 +42,9 @@ void ABaseAICharacter::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	OnStateUpdate(CurrentState, DeltaTime);
 
+	// Update the current speed for animation purposes
+	CurrentSpeed = GetVelocity().Size();
+
 }
 
 // Called to bind functionality to input

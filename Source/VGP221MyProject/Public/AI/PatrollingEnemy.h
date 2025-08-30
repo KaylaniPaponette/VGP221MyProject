@@ -7,8 +7,11 @@
 #include "Perception/AIPerceptionComponent.h"
 #include "PatrollingEnemy.generated.h"
 
-/**
+/** Forward declaration to avoid circular dependency
  * */
+class UAnimMontage;
+
+
 UCLASS()
 class VGP221MYPROJECT_API APatrollingEnemy : public ABaseAICharacter
 {
@@ -28,6 +31,11 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
 	TArray<AActor*> PatrolPoints;
+
+	// Reference to the attack animation montage
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Animation")
+	UAnimMontage* MeleeAttackMontage;
+
 
 private:
 	UFUNCTION()
