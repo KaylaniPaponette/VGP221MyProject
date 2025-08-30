@@ -10,7 +10,7 @@
 // Sets default values
 ABaseAICharacter::ABaseAICharacter()
 {
- 	// Set this character to call Tick() every frame.
+	// Set this character to call Tick() every frame.
 	PrimaryActorTick.bCanEverTick = true;
 	TeamId = FGenericTeamId(1); // Set team ID for AI
 
@@ -33,7 +33,7 @@ void ABaseAICharacter::BeginPlay()
 	{
 		HealthBarWidget->SetOwnerActor(this);
 	}
-	
+
 }
 
 // Called every frame
@@ -74,7 +74,6 @@ float ABaseAICharacter::TakeDamage(float DamageAmount, FDamageEvent const& Damag
 	{
 		HealthBarWidgetComponent->SetVisibility(false);
 
-		// --- NEW CODE START ---
 		// Get the current game mode
 		AVGP221GameModeBase* GameMode = Cast<AVGP221GameModeBase>(UGameplayStatics::GetGameMode(GetWorld()));
 		if (GameMode)
@@ -82,11 +81,17 @@ float ABaseAICharacter::TakeDamage(float DamageAmount, FDamageEvent const& Damag
 			// Check if the character that just died is a FleeingEnemy
 			if (this->IsA<AFleeingEnemy>())
 			{
-				// If it is, tell the game mode
 				GameMode->FleeingEnemyKilled();
 			}
+
+			// --- NEW CODE START ---
+			// Check if the character that just died is a boss
+			if (bIsBoss)
+			{
+				GameMode->BossEnemyKilled();
+			}
+			// --- NEW CODE END ---
 		}
-		// --- NEW CODE END ---
 
 		Destroy(); // Destroy the actor
 	}

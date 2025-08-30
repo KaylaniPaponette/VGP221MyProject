@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 #include "GenericTeamAgentInterface.h"
 #include "Components/WidgetComponent.h" // Required for the health bar
+#include "Perception/AIPerceptionTypes.h"
 #include "BaseAICharacter.generated.h"
 
 UENUM(BlueprintType)
@@ -38,8 +39,16 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	EAIState GetCurrentState() const { return CurrentState; }
+
+	//UFUNCTION()
+	//virtual void SetAIState(EAIState NewState);
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
 	float Health = 100.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
+	bool bIsBoss = false;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI")
 	EAIState CurrentState = EAIState::Idle;
