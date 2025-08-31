@@ -5,6 +5,7 @@
 #include "Player/FPSCharacter.h"
 #include "Projectile/FPSProjectile.h"
 #include "Perception/AISenseConfig_Sight.h"
+#include "Animation/AnimInstance.h"
 
 ATurretEnemy::ATurretEnemy()
 {
@@ -87,6 +88,15 @@ void ATurretEnemy::OnStateExit(EAIState State)
 
 void ATurretEnemy::Fire()
 {
+	// Play the attack animation montage
+	if (ThrowAttackMontage)
+	{
+		UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+		if (AnimInstance)
+		{
+			AnimInstance->Montage_Play(ThrowAttackMontage);
+		}
+	}
 	if (!ProjectileClass) return;
 
 	UWorld* World = GetWorld();

@@ -9,6 +9,8 @@
 
 /**
  * */
+class UAnimMontage;
+
 UCLASS()
 class VGP221MYPROJECT_API ATurretEnemy : public ABaseAICharacter
 {
@@ -28,6 +30,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
 	TSubclassOf<class AFPSProjectile> ProjectileClass;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Animation")
+	UAnimMontage* ThrowAttackMontage;
 
 private:
 	UFUNCTION()
