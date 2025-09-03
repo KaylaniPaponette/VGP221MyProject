@@ -16,7 +16,9 @@ enum class EAIState : uint8
 	Chase,
 	Attack,
 	Flee,
-	Idle
+	Idle,
+	Boss_Melee,
+	Boss_Ranged
 };
 
 UCLASS()
